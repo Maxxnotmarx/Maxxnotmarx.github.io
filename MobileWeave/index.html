@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MobileWeave: Program-First Synthesis of Dependency-Linked Tasks for Training Mobile GUI Agents</title>
+  <meta name="description" content="MobileWeave synthesizes mobile GUI training tasks as executable programs over typed capability graphs, linking subgoals through explicit value and object dependencies.">
+  <meta property="og:title" content="MobileWeave: Program-First Synthesis of Dependency-Linked Tasks for Training Mobile GUI Agents">
+  <meta property="og:description" content="Program-first task synthesis for mobile GUI agents. MobileWeave-8B: +26.7 SR on MobileGym, +8.6 / +21.3 / +17.6 SR on AndroidWorld / AndroidLab / MobileWorld.">
+  <meta property="og:image" content="static/images/overview_og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+</head>
+<body>
+
+<!-- ================= Title & authors ================= -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop has-text-centered">
+      <h1 class="title is-1 publication-title"><span class="mw-name">MobileWeave</span>: Program-First Synthesis of Dependency-Linked Tasks for Training Mobile GUI Agents</h1>
+
+      <div class="is-size-5 publication-authors">
+        <span class="author-block">Ziyi He<sup>1*</sup>,</span>
+        <span class="author-block">Xian Wu<sup>1*</sup>,</span>
+        <span class="author-block">Qiyuan Chen<sup>1*</sup>,</span>
+        <span class="author-block">Haitao Li<sup>2&dagger;</sup>,</span>
+        <span class="author-block">Cehao Yang<sup>3</sup>,</span>
+        <span class="author-block">Yinghao Zhu<sup>1</sup>,</span>
+        <span class="author-block">Xichen Zhang<sup>4</sup>,</span>
+        <span class="author-block">Xiao Chen<sup>5</sup>,</span>
+        <span class="author-block">Yushi Feng<sup>1</sup>,</span>
+        <span class="author-block">Lequan Yu<sup>1&dagger;</sup></span>
+      </div>
+
+      <div class="is-size-6 publication-affiliations">
+        <span class="author-block"><sup>1</sup>The University of Hong Kong</span>
+        <span class="author-block"><sup>2</sup>LIGHTSPEED</span>
+        <span class="author-block"><sup>3</sup>The Hong Kong University of Science and Technology (Guangzhou)</span>
+        <span class="author-block"><sup>4</sup>The Hong Kong University of Science and Technology</span>
+        <span class="author-block"><sup>5</sup>The Hong Kong Polytechnic University</span>
+      </div>
+      <div class="is-size-7 author-notes"><sup>*</sup>Equal contribution &nbsp;&nbsp; <sup>&dagger;</sup>Corresponding authors</div>
+
+      <!-- Links: for arXiv and Code, replace href="#" once public and drop the "is-soon" class. -->
+      <div class="publication-links">
+        <a class="button is-dark is-rounded link-btn is-soon" href="#" title="Coming soon">
+          <span class="icon"><i class="ai ai-arxiv"></i></span><span>arXiv</span></a>
+        <a class="button is-dark is-rounded link-btn is-soon" href="#" title="Coming soon">
+          <span class="icon"><i class="fab fa-github"></i></span><span>Code</span></a>
+        <a class="button is-dark is-rounded link-btn" href="https://huggingface.co/Maxnotmarx/MobileWeave-8B" target="_blank" rel="noopener">
+          <span class="icon">🤗</span><span>Model</span></a>
+        <a class="button is-dark is-rounded link-btn" href="https://huggingface.co/datasets/Maxnotmarx/MobileWeave-SFT" target="_blank" rel="noopener">
+          <span class="icon"><i class="fas fa-database"></i></span><span>Data</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= Headline numbers ================= -->
+<section class="section pt-4">
+  <div class="container is-max-desktop">
+    <div class="stat-row">
+      <div class="stat-tile">
+        <div class="stat-label">MobileGym SR</div>
+        <div class="stat-value">43.2</div>
+        <div class="stat-delta">+26.7 vs. Qwen3-VL-8B</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">AndroidLab SR</div>
+        <div class="stat-value">64.5</div>
+        <div class="stat-delta">+21.3 vs. Qwen3-VL-8B</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">MobileWorld SR</div>
+        <div class="stat-value">27.9</div>
+        <div class="stat-delta">+17.6 vs. Qwen3-VL-8B</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Composition-gap split SR</div>
+        <div class="stat-value">60.1</div>
+        <div class="stat-delta">from 9.2 with atomic-only training</div>
+      </div>
+    </div>
+    <p class="stat-note">MobileWeave-8B success rates (%). AndroidLab and MobileWorld use apps that never appear in training.</p>
+  </div>
+</section>
+
+<!-- ================= Abstract ================= -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Abstract</h2>
+    <div class="content has-text-justified">
+      <p>Native mobile GUI agents require large-scale training trajectories covering both individual app functions and multi-goal workflows within and across apps, which makes automatic task synthesis a promising way to scale training data. Existing synthesis pipelines, however, produce each task as free-form text, leaving implicit how its subgoals depend on one another. This matters because composition is a skill in its own right: a policy may complete each subtask of a workflow on its own, yet fail to chain these subtasks into the complete workflow.</p>
+      <p>We present <b>MobileWeave</b>, which instead synthesizes every task as an executable program derived from the app implementations of a controllable simulator. MobileWeave abstracts each app into a typed capability graph with semantic types shared across apps, composes atomic programs into single- and cross-app composite programs through explicit value and object dependencies, and verifies each program by native execution, deriving both its instruction and its completion check from the same program.</p>
+      <p>Trained on teacher trajectories collected for these tasks and on recovery supervision at the policy's own stalls, MobileWeave-8B improves its base model by 26.7 points on MobileGym and by 8.6, 21.3, and 17.6 points on AndroidWorld, AndroidLab, and MobileWorld, with comparable gains at 4B. Beyond these gains, we find that composition is learnable from task structure: explicit dependencies between subgoals act as a training signal that teaches a policy to compose skills it already masters.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Method ================= -->
+<section class="section section-alt">
+  <div class="container is-max-widescreen">
+    <h2 class="title is-3 has-text-centered">Method</h2>
+    <figure class="wide-figure">
+      <img src="static/images/overview.webp" alt="Overview of MobileWeave: capability graph, program weaving with execution and review, and teacher and recovery supervision.">
+    </figure>
+  </div>
+  <div class="container is-max-desktop">
+    <div class="columns method-steps">
+      <div class="column">
+        <div class="step-num">1</div>
+        <h3 class="title is-5">Typed capability graph</h3>
+        <p>For each app, a language model extracts entities, semantic types, and operators from the app's state schema, UI code, and native functions. Semantic types are shared across apps, so a meeting's remarks can feed a note's body in another app.</p>
+      </div>
+      <div class="column">
+        <div class="step-num">2</div>
+        <h3 class="title is-5">Weaving programs</h3>
+        <p>Templates turn the graph into atomic programs, then weave two to four of them into composite programs. <i>Value edges</i> pass a query's output to a later input; <i>object edges</i> point a later step to an object an earlier step selected or created.</p>
+      </div>
+      <div class="column">
+        <div class="step-num">3</div>
+        <h3 class="title is-5">Verified tasks</h3>
+        <p>Each program is executed natively, without the GUI, and reviewed for a plausible user goal. The same program yields the instruction and the completion check: <b>822</b> atomic and <b>1,376</b> composite tasks.</p>
+      </div>
+      <div class="column">
+        <div class="step-num">4</div>
+        <h3 class="title is-5">Trajectories &amp; recovery</h3>
+        <p>A teacher executes the tasks through the GUI, and <b>1,332</b> successful trajectories form the SFT set. Loop-targeted recovery then adds one-step corrections at the states where the trained policy itself stalls.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Main results ================= -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Main Results</h2>
+    <p class="section-lead">Success rate (%) on one Task-OOD benchmark that shares the training simulator and three Env-OOD benchmarks that run on the Android emulator with entirely different apps. All added supervision comes from the MobileGym simulator.</p>
+    <div class="table-wrap">
+      <table class="results">
+        <thead>
+          <tr>
+            <th rowspan="3" class="left">Model</th>
+            <th rowspan="3">Base</th>
+            <th colspan="2" class="grp">Task OOD</th>
+            <th colspan="3" class="grp">Env OOD</th>
+          </tr>
+          <tr>
+            <th colspan="2">MobileGym</th>
+            <th rowspan="2">AndroidWorld</th>
+            <th rowspan="2">AndroidLab</th>
+            <th rowspan="2">MobileWorld</th>
+          </tr>
+          <tr><th>SR</th><th>PR</th></tr>
+        </thead>
+        <tbody>
+          <tr class="group"><td colspan="7">Frontier models</td></tr>
+          <tr><td class="left">GPT-6.1-Sol</td><td>&ndash;</td><td>76.2</td><td>85.3</td><td>90.5</td><td>75.4</td><td>76.9</td></tr>
+          <tr><td class="left">DeepSeek-V4-Flash</td><td>&ndash;</td><td>47.7</td><td>59.7</td><td>57.8</td><td>50.0</td><td>58.1</td></tr>
+          <tr><td class="left">Qwen3.8-Max</td><td>&ndash;</td><td>62.9</td><td>71.7</td><td>85.3</td><td>71.0</td><td>77.8</td></tr>
+          <tr><td class="left">Gemini-3.1-pro-preview</td><td>&ndash;</td><td>55.5</td><td>67.8</td><td>70.7</td><td>72.5</td><td>58.1</td></tr>
+          <tr><td class="left">Qwen3.8-27B</td><td>&ndash;</td><td>58.6</td><td>73.8</td><td>81.9</td><td>68.1</td><td>70.1</td></tr>
+
+          <tr class="group"><td colspan="7">Open-weight models</td></tr>
+          <tr class="base"><td class="left">Qwen3-VL-4B</td><td>Qwen3-VL</td><td>9.4</td><td>20.1</td><td>44.0</td><td>40.3</td><td>9.1</td></tr>
+          <tr class="base"><td class="left">Qwen3-VL-8B</td><td>Qwen3-VL</td><td>16.5</td><td>21.7</td><td>47.4</td><td>43.2</td><td>10.3</td></tr>
+          <tr><td class="left">Step-GUI-4B</td><td>Qwen3-VL</td><td>9.0</td><td>18.7</td><td>63.9</td><td>47.8</td><td>16.2</td></tr>
+          <tr><td class="left">MAI-UI-8B</td><td>Qwen3-VL</td><td>16.8</td><td>28.3</td><td>70.7</td><td>53.6</td><td>27.4</td></tr>
+          <tr><td class="left">UI-Venus-1.5-8B</td><td>Qwen3-VL</td><td>15.6</td><td>28.3</td><td>73.7</td><td>55.1</td><td>17.1</td></tr>
+          <tr><td class="left">GUI-Owl-1.5-8B</td><td>Qwen3-VL</td><td>17.2</td><td>31.3</td><td>69.0</td><td>35.5</td><td>38.5</td></tr>
+
+          <tr class="group"><td colspan="7">Open-data models</td></tr>
+          <tr><td class="left">ScaleCUA-7B</td><td>Qwen2.5-VL</td><td>6.6</td><td>15.5</td><td>48.3</td><td>31.2</td><td>7.7</td></tr>
+          <tr><td class="left">ForgeQwen3-8B</td><td>Qwen3-VL</td><td>14.8</td><td>22.1</td><td>49.8</td><td>54.3</td><td>10.3</td></tr>
+          <tr><td class="left">OpenMobile-8B</td><td>Qwen3-VL</td><td>13.7</td><td>31.5</td><td><b>64.7</b></td><td>51.5</td><td>17.7</td></tr>
+          <tr><td class="left">GUI-Libra-8B</td><td>Qwen3-VL</td><td>15.6</td><td>25.3</td><td>43.6</td><td>44.9</td><td>14.5</td></tr>
+          <tr><td class="left">MobileGym-4B</td><td>Qwen3-VL</td><td>22.3</td><td>34.4</td><td>47.4</td><td>37.7</td><td>17.1</td></tr>
+          <tr class="ours"><td class="left">MobileWeave-4B</td><td>Qwen3-VL</td><td><u>40.0</u></td><td><u>52.1</u></td><td>52.9</td><td><u>54.6</u></td><td><u>22.8</u></td></tr>
+          <tr class="gain"><td class="left" colspan="2">Gain vs. Qwen3-VL-4B</td><td>+30.6</td><td>+32.0</td><td>+8.9</td><td>+14.3</td><td>+13.7</td></tr>
+          <tr class="ours"><td class="left">MobileWeave-8B</td><td>Qwen3-VL</td><td><b>43.2</b></td><td><b>55.4</b></td><td><u>56.0</u></td><td><b>64.5</b></td><td><b>27.9</b></td></tr>
+          <tr class="gain"><td class="left" colspan="2">Gain vs. Qwen3-VL-8B</td><td>+26.7</td><td>+33.7</td><td>+8.6</td><td>+21.3</td><td>+17.6</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">SR: success rate; PR: progress rate. MobileWorld uses the GUI-only setting. Within open-data models, <b>bold</b> and <u>underline</u> mark the best and second-best result in each column. Qwen3-VL and MobileWeave numbers are averaged over eight runs on MobileGym and three runs elsewhere.</p>
+  </div>
+</section>
+
+<!-- ================= Why programs ================= -->
+<section class="section section-alt">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Why Program-First?</h2>
+    <div class="columns is-vcentered">
+      <div class="column is-7">
+        <figure class="chart">
+          <img src="static/images/data_scaling.svg" alt="MobileGym progress rate against the number of training trajectories. MobileWeave: 21.7, 34.5, 40.8, 47.1, 49.3, 50.2 at 0 to 1,000 trajectories. Direct generation: 21.7, 30.2, 35.9, 40.9, 43.5, 45.6.">
+          <figcaption>MobileGym progress rate of Qwen3-VL-8B fine-tuned on MobileWeave vs. direct-generation trajectories.</figcaption>
+        </figure>
+      </div>
+      <div class="column is-5">
+        <p>We compare MobileWeave with a baseline in which a language model reads the same app code and writes complete tasks directly, without a capability graph. Under matched trajectory budgets:</p>
+        <ul class="findings">
+          <li>With 600 trajectories, MobileWeave tasks reach <b>38.0</b> SR on MobileGym, vs. <b>29.2</b> for direct generation.</li>
+          <li>MobileWeave stays ahead in PR at every data budget from 200 to 1,000 trajectories.</li>
+          <li>With 600 trajectories, MobileWeave already surpasses the baseline trained on 1,000 (<b>47.1</b> vs. <b>45.6</b> PR).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Composition ================= -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Composition Is Learnable from Task Structure</h2>
+    <p class="section-lead">A policy trained only on atomic tasks may complete every constituent of a composite task on its own, yet fail on their combination. On 42 such tasks, the <i>composition-gap split</i>, dependency-linked composite training closes most of the gap.</p>
+    <div class="columns is-vcentered">
+      <div class="column is-5">
+        <div class="table-wrap">
+          <table class="results compact">
+            <thead>
+              <tr><th class="left">Training data</th><th>Split (42)</th><th>Other (211)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="left">Atomic only</td><td>9.2</td><td>83.7</td></tr>
+              <tr><td class="left">+ 200 independent</td><td>40.8</td><td>88.9</td></tr>
+              <tr class="ours"><td class="left">+ 200 dependency-linked</td><td><b>60.1</b></td><td><b>92.1</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">SR (%) on 253 composite tasks whose constituent atomic tasks the atomic-only model completes reliably.</p>
+      </div>
+      <div class="column is-7">
+        <figure class="chart">
+          <img src="static/images/composition_attribution.svg" alt="Failed runs per failure type on the composition-gap split. Atomic only / + independent / + dependency-linked: subgoal omission 60/12/13, object-binding error 75/60/30, value-transfer error 38/33/20, premature termination 6/8/2, transition failure 126/86/69.">
+          <figcaption>Failure types on the split. FM 1: subgoal omission; FM 2: object-binding error; FM 3: value-transfer error; FM 4: premature termination; FM 5: transition failure.</figcaption>
+        </figure>
+      </div>
+    </div>
+    <p class="body-text">Practicing several goals in one episode is enough for the policy to attempt each one: subgoal omissions fall from 60 to 13. The errors <i>between</i> subgoals fall mainly with dependencies. Object-binding errors drop from 75 to 30, value-transfer errors from 38 to 20, and transition failures from 126 to 69.</p>
+
+    <h3 class="title is-5 case-title">Case: object binding across apps</h3>
+    <figure class="wide-figure">
+      <img loading="lazy" src="static/images/case_composition_1.webp" alt="Cross-app case: the atomic-only model writes the event's name into the alarm label; the dependency-linked model reads the alarm label and sets it as the calendar event title.">
+      <figcaption>The atomic-only model finds the alarm but writes the event's name into the alarm label and never opens Calendar; the dependency-linked model reads the label and sets it as the event title.</figcaption>
+    </figure>
+    <h3 class="title is-5 case-title">Case: transition between subgoals</h3>
+    <figure class="wide-figure">
+      <img loading="lazy" src="static/images/case_composition_2.webp" alt="Single-app case: the atomic-only model opens the contact's Moments page; the dependency-linked model opens the post editor and publishes the signature.">
+      <figcaption>The atomic-only model reads the signature but then opens the contact's own Moments page; the dependency-linked model returns to Discover, opens the text-post editor, and publishes the signature.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= Recovery & transfer ================= -->
+<section class="section section-alt">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Recovering from Action Loops</h2>
+    <p class="section-lead">Successful trajectories show how to finish a task, but not how to resume once execution stalls. Loop-targeted recovery SFT adds one-step teacher corrections at the policy's own loops.</p>
+    <div class="table-wrap">
+      <table class="results">
+        <thead>
+          <tr><th rowspan="2" class="left">Benchmark</th><th colspan="2" class="grp">SR (%) &uarr;</th><th colspan="2" class="grp">Trajectories with loop &ge; 3 &darr;</th></tr>
+          <tr><th>A + C</th><th>+ Recovery</th><th>A + C</th><th>+ Recovery</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="left">MobileGym</td><td>40.8</td><td><b>44.3</b> <span class="g">+3.5</span></td><td>95.3</td><td><b>75.0</b> <span class="g">&minus;21%</span></td></tr>
+          <tr><td class="left">AndroidWorld</td><td>53.4</td><td><b>56.0</b> <span class="g">+2.6</span></td><td>12.0</td><td><b>6.7</b> <span class="g">&minus;44%</span></td></tr>
+          <tr><td class="left">AndroidLab</td><td>59.2</td><td><b>64.5</b> <span class="g">+5.3</span></td><td>15.0</td><td><b>10.3</b> <span class="g">&minus;31%</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">Qwen3-VL-8B. A + C: trained on all 1,332 atomic and composite trajectories; + Recovery: the same model after recovery SFT. Averaged over three runs.</p>
+
+    <h3 class="title is-5 case-title">Case: leaving a loop without a teacher</h3>
+    <figure class="wide-figure">
+      <img loading="lazy" src="static/images/case_recovery_1.webp" alt="Two Railway 12306 episodes in which MobileWeave-8B repeats an ineffective action, recognizes the cause, and completes the task.">
+      <figcaption>MobileWeave-8B on two Railway 12306 tasks. <i>Top:</i> after five ineffective presses on <i>Submit order</i>, the policy notices that no passenger is selected, selects one, and submits. <i>Bottom:</i> after scrolling five times for the submit button, it dismisses the keyboard that hides it and completes the order. Red dashed frames mark loops; blue frames mark the step that leaves the loop.</figcaption>
+    </figure>
+
+    <h3 class="title is-5 case-title">What transfers to unseen apps</h3>
+    <div class="columns is-vcentered">
+      <div class="column is-6">
+        <figure class="chart">
+          <img src="static/images/failure_modes.svg" alt="Failed MobileWorld episodes per category, Qwen3-VL-8B vs. MobileWeave-8B: visual grounding 77 to 56, reasoning and planning 77 to 70, function navigation 32 to 23, attribute omission error 19 to 16, subtask omission 5 to 1.">
+        </figure>
+      </div>
+      <div class="column is-6">
+        <p>On MobileWorld, whose apps never appear in training, MobileWeave-8B fails less often than its base model in every error category of the MobileBench-OL taxonomy. The largest drops are in visual grounding (77 &rarr; 56) and function navigation (32 &rarr; 23), on interfaces the policy has never seen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BibTeX ================= -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">BibTeX</h2>
+    <div class="bibtex-wrap">
+      <button class="button is-small copy-btn" type="button" onclick="copyBib(this)"><span class="icon"><i class="far fa-copy"></i></span><span>Copy</span></button>
+<pre id="bibtex"><code>@article{he2026mobileweave,
+  title   = {MobileWeave: Program-First Synthesis of Dependency-Linked Tasks for Training Mobile GUI Agents},
+  author  = {He, Ziyi and Wu, Xian and Chen, Qiyuan and Li, Haitao and Yang, Cehao and Zhu, Yinghao and Zhang, Xichen and Chen, Xiao and Feng, Yushi and Yu, Lequan},
+  journal = {arXiv preprint arXiv:XXXX.XXXXX},
+  year    = {2026}
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container is-max-desktop">
+    <div class="content has-text-centered">
+      <p>This website is adapted from the <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a> project page template and is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function copyBib(btn) {
+    navigator.clipboard.writeText(document.getElementById('bibtex').innerText).then(function () {
+      var label = btn.querySelector('span:last-child');
+      label.textContent = 'Copied';
+      setTimeout(function () { label.textContent = 'Copy'; }, 1500);
+    });
+  }
+  // Placeholder links: keep the page from jumping to the top.
+  document.querySelectorAll('a.is-soon').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); });
+  });
+</script>
+</body>
+</html>
